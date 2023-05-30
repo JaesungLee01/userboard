@@ -1,23 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import = "java.sql.*" %>
-<%@ page import = "java.util.*" %>
-<%@ page import = "vo.*" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="vo.*" %>
 <%
-	if(session.getAttribute("loginMemberId") == null) {
-		response.sendRedirect(request.getContextPath()+"/home.jsp");
+	request.setCharacterEncoding("utf-8");
+
+	//세션 유효성 검사
+	if(session.getAttribute("loginMemberId") == null) {				// 로그인 중이 아니라면
+		response.sendRedirect(request.getContextPath()+"/home.jsp");// 홈으로
 		return;
 	}
-	
-	if(request.getParameter("localName") == null
-			|| request.getParameter("localName").equals("")){
-		response.sendRedirect(request.getContextPath()+"/board/categoryList.jsp");
+	// 요청값 유효성 검사
+	if(request.getParameter("localName") == null				// 지역명이 null이거나 공백이면
+		|| request.getParameter("localName").equals("")) {
+		response.sendRedirect(request.getContextPath()+"/board/CategoryList.jsp");// 카테고리 목록으로
 		return;
 	}
+	// 요청값 변수에 저장
+	String localName = request.getParameter("localName");
+	// 디버깅
+	System.out.println(localName + " <-- deleteCategoryAction localName");
 	
-	String categoryName = request.getParameter("localName");
-	
-	System.out.println(categoryName + "<--deleteCategorAction categoryName");
-	
+	//db 접속
 	String driver = "org.mariadb.jdbc.Driver";
 	String dburl = "jdbc:mariadb://127.0.0.1:3306/userboard";
 	String dbuser = "root";
@@ -25,45 +29,45 @@
 	Class.forName(driver);
 	Connection conn = null;
 	conn = DriverManager.getConnection(dburl, dbuser, dbpw);
-	
-	PreparedStatement categoryCheckStmt = null;
-	ResultSet categoryCheckRs = null;
-	String categoryCheckSql = "SELECT COUNT(local_name) cnt FROM board WHERE local_name = ?;";
-	categoryCheckStmt = conn.prepareStatement(categoryCheckSql);
-	categoryCheckStmt.setString(1, categoryName);
-	
-	System.out.println(categoryCheckStmt + "<-- deleteCategoryAction categoryCheckStmt");
-	
-	categoryCheckRs = categoryCheckStmt.executeQuery();
+	// local_name이 일치하면 삭제 sql 전송
+	PreparedStatement boardCkStmt = null;
+	ResultSet boardCklRs = null;
+	String boardCkSql = "SELECT COUNT(local_name) cnt FROM board WHERE local_name = ?;";
+	boardCkStmt = conn.prepareStatement(boardCkSql);
+	boardCkStmt.setString(1, localName);
+	// 위 sql 디버깅
+	System.out.println(boardCkStmt + " <-- updateCategoryForm localStmt");
+	// 전송한 sql 실행값 반환
+	// db쿼리 결과셋 모델
+	boardCklRs = boardCkStmt.executeQuery();
 	int cnt = 0;
-	if(categoryCheckRs.next()) {
-		cnt = categoryCheckRs.getInt("cnt");
+	if(boardCklRs.next()) {
+		cnt = boardCklRs.getInt("cnt");
 	}
 	
-	if (cnt != 0){
-		response.sendRedirect(request.getContextPath()+"/board/categoryList.jsp");
+	if (cnt != 0) {		// 해당 카테고리의 게시물이 있으면 카테고리 목록으로 
+		response.sendRedirect(request.getContextPath()+"/board/categoryList.jsp");// 카테고리 목록으로
 		return;
 	}
 	
-	PreparedStatement deleteCategoryStmt = null;
-	String deleteCategorySql = "DELETE FROM local WHERE local_name = ?;";
-	deleteCategoryStmt = conn.prepareStatement(deleteCategorySql);
-	deleteCategoryStmt.setString(1, categoryName);
+	PreparedStatement deleteLocalStmt = null;
+	String deleteLocalSql = "DELETE FROM local WHERE local_name = ?;";
+	deleteLocalStmt = conn.prepareStatement(deleteLocalSql);
+	deleteLocalStmt.setString(1, localName);
+	// 위 sql 디버깅
+	System.out.println(deleteLocalStmt + " <-- deleteCategoryAction localStmt");
+	// 전송한 sql 실행값 반환
+	// db쿼리 결과셋 모델
+	int row = deleteLocalStmt.executeUpdate();
 	
-	System.out.println(deleteCategoryStmt + " <-- deleteCategoryAction deleteCategoryStmt");
-	
-	int row = deleteCategoryStmt.executeUpdate();
-	
-	if (row == 1) {
-		System.out.println("삭제성공");
-	} else {
-		System.out.println("삭제실패");
-		response.sendRedirect(request.getContextPath()+"/board/categoryList.jsp");
+	if(row == 1){ // 카테고리 삭제 성공
+		System.out.println("카테고리 삭제 성공");
+	} else { 	// 카테고리 삭제 실패 -> 다시 카테고리 목록으로
+		// row == 0 -> 카테고리 이름이 일치하지 않음
+		System.out.println("카테고리 삭제 실패"); 
+		response.sendRedirect(request.getContextPath()+"/board/categortList.jsp");
 		return;
 	}
-		
+	
 	response.sendRedirect(request.getContextPath()+"/board/categoryList.jsp");
-	
-	
 %>
-

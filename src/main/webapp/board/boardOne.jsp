@@ -1,17 +1,38 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import = "java.sql.*" %>
-<%@ page import = "java.util.*" %>
-<%@ page import = "vo.*" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="vo.*" %>
 <%
-request.setCharacterEncoding("utf-8");	
-	
+	// 컨트롤러 계층
+	//세션 유효성 검사
+	String loginMemberId = "";
+	if(session.getAttribute("loginMemberId") != null) {
+		loginMemberId = (String)session.getAttribute("loginMemberId");
 
+	}
+	// 요청값 유효성 검사
+	if (request.getParameter("boardNo") == null							// boardNo가 null이거나 공백이면
+		|| request.getParameter("boardNo").equals("")) {
+		response.sendRedirect(request.getContextPath() + "/home.jsp");	// home.jsp로 가라
+		return;															// 코드 종료
+	}
+	// 요청값 변수에 저장
 	int boardNo = Integer.parseInt(request.getParameter("boardNo"));
+	
+	int commentNo = 0;
+	if(request.getParameter("commentNo") != null) {
+		commentNo = Integer.parseInt(request.getParameter("commentNo"));
+	}
+	boolean updateComment = false;
+	if(request.getParameter("updateComment") != null) {
+		updateComment = Boolean.valueOf(request.getParameter("updateComment"));
+	}
+	// 요청값 디버깅
+	System.out.println(boardNo + " <-- boardOne prameter boardNo");
 	int currentPage = 1;
 	int rowPerPage = 10;
 	int startRow = 0;
-	
-	// 모델계층
+	// db 접속
 	String driver = "org.mariadb.jdbc.Driver";
 	String dburl = "jdbc:mariadb://127.0.0.1:3306/userboard";
 	String dbuser = "root";
@@ -19,156 +40,244 @@ request.setCharacterEncoding("utf-8");
 	Class.forName(driver);
 	Connection conn = null;
 	conn = DriverManager.getConnection(dburl, dbuser, dbpw);
-	// 전체의 행을 구하는 sql 전송
-	
-	// boardd one 결과 셋
-	PreparedStatement boardStmt = null;
-	ResultSet boardRs = null;
-	String boardSql = "SELECT board_no boardNo,local_name localName, board_title boardTitle, board_content boardContent, member_id memberId, createdate, updatedate FROM board WHERE board_no = ?";
-	boardStmt = conn.prepareStatement(boardSql);
-	boardStmt.setInt(1,boardNo);
-	
-	boardRs = boardStmt.executeQuery(); // row -> 1 -> Board타입
-	
-	Board board = null;
-	if(boardRs.next()){
-		board = new Board();
-		board.setBoardNo(boardRs.getInt("boardNo"));
-		board.setLocalName(boardRs.getString("localName")); 
-		board.setBoardTitle(boardRs.getString("boardTitle")); 
-		board.setBoardContent(boardRs.getString("boardContent")); 
-		board.setMemberId(boardRs.getString("memberId")); 
-		board.setCreatedate(boardRs.getString("createdate"));
-		board.setUpdatedate(boardRs.getString("updatedate"));
+	// 상세정보 결과셋(모델)
+	// boardNo가 일치하는 데이터를 조회하는 sql 전송
+	PreparedStatement oneStmt = null;
+	ResultSet oneRs = null;
+	String oneSql = "SELECT board_no boardNo, local_name localName, board_title boardTitle, board_content boardContent, member_id memberId, createdate, updatedate FROM board WHERE board_no = ?";
+	oneStmt = conn.prepareStatement(oneSql);
+	oneStmt.setInt(1, boardNo);
+	// 위 sql 디버깅
+	System.out.println(oneStmt + " <-- boardOne oneStmt");
+	// 쿼리 결과셋 모델
+	oneRs = oneStmt.executeQuery();
+	// 결과셋 Board 객체에 저장
+	Board one = new Board();
+	if(oneRs.next()) {
+		one.setBoardNo(oneRs.getInt("boardNo"));
+		one.setLocalName(oneRs.getString("localName"));
+		one.setBoardTitle(oneRs.getString("boardTitle"));
+		one.setBoardContent(oneRs.getString("boardContent"));
+		one.setMemberId(oneRs.getString("memberId"));
+		one.setCreatedate(oneRs.getString("createdate"));
+		one.setUpdatedate(oneRs.getString("updatedate"));
 	}
 	
-	// commentList 결과 셋
-	PreparedStatement commentListStmt = null;
-	ResultSet commentListRs = null;
-	String commentListSql = "SELECT comment_no commentNo, board_no boardNo, comment_content commentContent, member_id memberId, createdate, updatedate FROM comment WHERE board_no = ? ORDER BY createdate DESC LIMIT ?, ?";
-	commentListStmt = conn.prepareStatement(commentListSql);
-	commentListStmt.setInt(1,boardNo);
-	commentListStmt.setInt(2,startRow);
-	commentListStmt.setInt(3,rowPerPage);
-	
-	commentListRs = commentListStmt.executeQuery(); //row -> 최대10 -> ArrayList<comment>
-	
+	// 댓글 결과셋
+	PreparedStatement commentStmt = null;
+	ResultSet commentRs = null;
+	String commentSql = "SELECT comment_no commentNo, board_no boardNo, comment_content commentContent, member_id memberId, createdate, updatedate FROM comment WHERE board_no = ? ORDER BY createdate DESC LIMIT ?, ?";
+	commentStmt = conn.prepareStatement(commentSql);
+	commentStmt.setInt(1, boardNo);
+	commentStmt.setInt(2, startRow);
+	commentStmt.setInt(3, rowPerPage);
+	// 위 sql 디버깅
+	System.out.println(commentStmt + " <-- boardOne commentStmt");
+	// 쿼리 결과셋 모델
+	commentRs = commentStmt.executeQuery();
+	// 결과셋 ArrayList<Comment>에 저장
 	ArrayList<Comment> commentList = new ArrayList<Comment>();
-	while(commentListRs.next()){
+	while(commentRs.next()) {
 		Comment c = new Comment();
-		c.setCommentNo(commentListRs.getInt("commentNo"));
-		c.setBoardNo(commentListRs.getInt("boardNo"));
-		c.setCommentContent(commentListRs.getString("commentContent"));
-		c.setMemberId(commentListRs.getString("memberId"));
-		c.setCreatedate(commentListRs.getString("createdate"));
-		c.setUpdatedate(commentListRs.getString("updatedate").substring(0,10));
+		c.setCommentNo(commentRs.getInt("commentNo"));
+		c.setBoardNo(commentRs.getInt("boardNo"));
+		c.setCommentContent(commentRs.getString("commentContent"));
+		c.setMemberId(commentRs.getString("memberId"));
+		c.setCreatedate(commentRs.getString("createdate"));
+		c.setUpdatedate(commentRs.getString("updatedate"));
 		commentList.add(c);
 	}
-	
-	
-	//뷰계층
+	System.out.println(commentList.size() + " <-- boardOne commentList.size()");
 %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+	<meta charset="UTF-8">
+	<title>boardOne</title>
+	<!-- Latest compiled and minified CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	
+	<!-- Latest compiled JavaScript -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-	<!-- 3-1)board one 결과세 -->
-	<table>
-		<tr>
-			<th>boardNo</th>
-			<td><%=board.getBoardNo() %></td>
-		</tr>
-		<tr>
-			<th>localName</th>
-			<td><%=board.getLocalName() %></td>
-		</tr>
-		<tr>
-			<th>boardTitle</th>
-			<td><%=board.getBoardTitle() %></td>
-		</tr>
-		<tr>
-			<th>boardContent</th>
-			<td><%=board.getBoardContent() %></td>
-		</tr>
-		<tr>
-			<th>memberId</th>
-			<td><%=board.getMemberId() %></td>
-		</tr>
-		<tr>
-			<th>createDate</th>
-			<td><%=board.getCreatedate() %></td>
-		</tr>
-		<tr>
-			<th>updatdDate</th>
-			<td><%=board.getUpdatedate() %></td>
-		</tr>
-
-	</table>
-	<%
-		if(session.getAttribute("loginMemberId") == board.getMemberId()){
-			
-	%>
-			<button type="submit">수정</button>
-			<button type="submit">삭제</button>
-	<%
-		}
-		// 로그인 사용자만 댓글 입력 허용
-		if(session.getAttribute("loginMemberId") !=null ){
-			// 현재 로그인 사용자 아이디
-			String loginMemberId = (String)session.getAttribute("loginMemberId");
-	%>
-		<form action="<%=request.getContextPath()%>/board/insertCommentAcion.jsp" method="post">
-			<input type="hidden" name="boardNo" value="<%=board.getBoardNo()%>">
-			<input type="hidden" name="memberId" value="<%=loginMemberId%>">
-			<table>
-				<th>commentContent</th>
-				<td>
-					<textarea rows="2" cols="80" name="commentContent"></textarea>
-				</td>
+	<div class="p-4 bg-dark text-white text-center">
+	  <h1>유저 게시판</h1>
+	  <p>상세 페이지</p> 
+	</div>
+	<div>
+		<!-- 메인메뉴 -->
+		<div>
+			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
+		</div>
+	</div>
+	<br>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-9"><h1>상세 내용</h1></div>
+			<div class="col-sm-3">
+				<!-- home 내용 : 로그인 폼/ 게시글 -->
+				<!-- 로그인 폼 -->
+				<%
+					if(session.getAttribute("loginMemberId") != null) {	// 로그인 정보가 없다면 로그인 폼 표시
+				%>
+						<!-- 로그인한 유저 표시 -->
+					<div class="card" style="width:300px">
+					  <div class="card-body">
+					  	<h4 class="card-title">
+						  	<img class="card-img-top" src="<%=request.getContextPath()%>/img/profile.png" alt="Card image" style="width:50px;">
+						    <%=session.getAttribute("loginMemberId") %>
+					    </h4>
+					    <p class="card-text"><%=session.getAttribute("loginMemberId") %>님이 로그인 중입니다.</p>
+					    <a href="<%=request.getContextPath()%>/member/profileForm.jsp" class="btn btn-dark">회원정보</a>
+					    <a href="<%=request.getContextPath()%>/member/logoutAction.jsp" class="btn btn-dark">로그아웃</a>
+					  </div>
+					</div>
+				<%	
+					}
+				%>
+			</div>
+		</div>
+	</div>
+	<br>
+	<div class="container">
+		<form action="<%=request.getContextPath()%>/board/updateBoardForm.jsp" method="post">
+			<table class="table table-bordered">
+				<tr>
+					<th class="table-dark">boardNo</th>
+					<td>
+						<input type="hidden" name="boardNo" value="<%=one.getBoardNo() %>">
+						<%=one.getBoardNo() %>
+					</td>
+				</tr>
+				<tr>
+					<th class="table-dark">localName</th>
+					<td><%=one.getLocalName() %></td>
+				</tr>
+				<tr>
+					<th class="table-dark">boardTitle</th>
+					<td><%=one.getBoardTitle() %></td>
+				</tr>
+				<tr>
+					<th class="table-dark">boardContent</th>
+					<td><%=one.getBoardContent() %></td>
+				</tr>
+				<tr>
+					<th class="table-dark">memberId</th>
+					<td><%=one.getMemberId() %></td>
+				</tr>
+				<tr>
+					<th class="table-dark">createdate</th>
+					<td><%=one.getCreatedate() %></td>
+				</tr>
+				<tr>
+					<th class="table-dark">updatedate</th>
+					<td><%=one.getUpdatedate().substring(0, 10) %></td>
+				</tr>
 			</table>
-			<button type="submit">댓글입력</button>
-		</form>
-	
-	<%
-		}
-	%>
-	
-	<!-- 3-1)board one 결과세 -->
-	<table>
-		<tr>
-	
-			<th>commentContent</th>
-			<th>memberId</th>
-			<th>createdate</th>
-			<th>updatedate</th>
-			<th>수정</th>
-			<th>삭제</th>
-		</tr>
 		<%
-			for(Comment c : commentList) {
-				
+			if(one.getMemberId().equals(loginMemberId)) {
 		%>
-			<tr>
-				<td><%=c.getMemberId() %></td>
-				<td><%=c.getCommentContent() %></td>
-				<td><%=c.getCreatedate() %></td>
-				<td><%=c.getUpdatedate() %></td>
-				<td>수정</td>
-				<td>삭제</td>
-			</tr>
-		<%
+			<button type="submit" class="btn btn-dark">수정</button>
+			<button type="submit" class="btn btn-dark" formaction="<%=request.getContextPath()%>/board/deleteBoardAction.jsp">삭제</button>	
+		<%	
 			}
 		%>
-	</table>
-	
-	<div>
-		<a href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=boardNo%>&currentpage=<%=currentPage-1%>">이전</a>
-		<a href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=boardNo%>&currentpage=<%=currentPage+1%>">다음</a>
+		</form>
+		<br>
+		<form action="<%=request.getContextPath()%>/board/updateCommentAction.jsp">
+			<table class="table table-bordered">
+				<tr>
+					<th class="table-dark" col="3">댓글</th>
+				</tr>
+				<%
+					for(Comment c : commentList){
+				%>
+						<tr>
+							<td col="3">
+							<%
+								if(c.getMemberId().equals(loginMemberId) && updateComment == true) {
+							%>
+									<input type="hidden" name="boardNo" value="<%=c.getBoardNo() %>">
+									<input type="hidden" name="commentNo" value="<%=c.getCommentNo() %>">
+									<h5><%=session.getAttribute("loginMemberId") %></h5>
+									<div class="row">
+										<div class="col-sm">
+										<textarea class="form-control" cols="100" name="commentContent"></textarea>
+										</div>
+										<div class="col-sm-2">
+										<button type="submit" class="btn btn-dark">댓글수정</button>
+										</div>
+									</div>	
+							<%		
+								} else {
+							%>
+									<div class="row">
+										<div class="col-sm-1">
+											<img src="<%=request.getContextPath()%>/img/profile.png" style="width:40px;">
+										</div>
+										<div class="col-sm">
+											<h5><%=c.getMemberId() %></h5>
+											<p><%=c.getCommentContent() %></p>
+											<p class="text-muted"><small><%=c.getUpdatedate().substring(0, 10) %></small></p>
+										</div>
+										<div class="dropdown dropdown-menu-end col-sm-1">
+											 <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">
+											 </button>
+									 	<%
+											if(c.getMemberId().equals(loginMemberId)) {	
+										%>
+											 <ul class="dropdown-menu">
+											   <li><a class="dropdown-item" href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=c.getBoardNo()%>&commentNo=<%=c.getCommentNo()%>&updateComment=true">수정</a></li>
+											   <li><a class="dropdown-item" href="<%=request.getContextPath()%>/board/deleteCommentAction.jsp?boardNo=<%=c.getBoardNo()%>&commentNo=<%=c.getCommentNo()%>">삭제</a></li>
+											 </ul>
+										<%			
+												}
+										%>
+										</div>
+									</div>
+							<%		
+								}
+							%>
+							</td>
+						</tr>
+				<%	
+					}
+				%>
+			</table>
+		</form>
+		<%
+			if(session.getAttribute("loginMemberId") != null) {
+		%>
+				<form action="<%=request.getContextPath()%>/board/insertCommentAction.jsp">
+					<input type="hidden" name="boardNo" value="<%=one.getBoardNo() %>">
+					<table class="table table-bordered">
+						<tr>
+							<td>
+								<h5><%=session.getAttribute("loginMemberId") %></h5>
+								<div class="row">
+									<div class="col-sm">
+									<textarea class="form-control" cols="100" name="commentContent"></textarea>
+									</div>
+									<div class="col-sm-2">
+									<button type="submit" class="btn btn-dark">댓글입력</button>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</form>
+		<%	
+			}
+		%>
+		<div>
+			<a href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=one.getBoardNo()%>&currentPage=<%=currentPage-1%>">이전</a>
+			<a href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=one.getBoardNo()%>&currentPage=<%=currentPage+1%>">다음</a>
+		</div>
 	</div>
-	
-	
+	<div class="mt-5 p-4 bg-dark text-white text-center">
+			<!-- include 페이지 : Copyright &copy; 구디아카데미 -->
+			<jsp:include page="/inc/copyright.jsp"></jsp:include>
+	</div>
 </body>
 </html>
