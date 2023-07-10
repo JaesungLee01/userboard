@@ -35,6 +35,7 @@
 	String sql = "SELECT member_id memberId FROM member WHERE member_id = ? AND member_pw = PASSWORD(?)";
 	stmt = conn.prepareStatement(sql);
 	stmt.setString(1, paramMember.getMemberId());
+	
 	stmt.setString(2, paramMember.getMemberPw());
 	rs = stmt.executeQuery();
 	if(rs.next()) {	//로그인 성공

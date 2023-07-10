@@ -3,7 +3,7 @@
 <%@ page import="java.util.*" %>
 <%@ page import="vo.*" %>
 <%
-	// 1. 요청분석(컨트롤러 계층)
+// 1. 요청분석(컨트롤러 계층)
 	//현재 페이지
 	int currentPage = 1;
 	if(request.getParameter("currentPage") != null) {
@@ -20,6 +20,7 @@
 	// 요청값 유효성 검사
 	// localName 변수 전체로 초기화
 	String localName = "전체";
+	
 	if(request.getParameter("localName") != null) {			// 요청값 localName이 null이 아니면
 		localName = request.getParameter("localName");		// 요청값 저장
 	}
@@ -106,12 +107,12 @@
 	// vo타입 Board의 데이터를 가진 ArrayList
 	// 애플리케이션에서 사용할 모델(사이즈 0)
 	ArrayList<Board> list = new ArrayList<Board>();
-	while(listRs.next()) {
+	while (listRs.next()) {
 		Board b = new Board();
 		b.setBoardNo(listRs.getInt("boardNo"));
-		b.setLocalName(listRs.getString("localName")); 
+		b.setLocalName(listRs.getString("localName"));
 		b.setBoardTitle(listRs.getString("boardTitle"));
-		b.setCreatedate(listRs.getString("createdate")); 
+		b.setCreatedate(listRs.getString("createdate"));
 		list.add(b);
 	}
 %>
@@ -133,10 +134,8 @@
 		  <h1>유저 게시판</h1>
 		  <p>Home</p> 
 		</div>
-		<%
-		// request.getRequestDispatcher("/inc/mainmenu.jsp").include(request, response);
-		// 위 코드를 액션태그로 변경
-		%>
+		<!-- request.getRequestDispatcher("/inc/mainmenu.jsp").include(request, response);
+		위 코드를 액션태그로 변경 -->
 		<div>
 			<!-- 메인메뉴 -->
 			<div>
@@ -223,7 +222,7 @@
 					<button type="submit" class="btn btn-dark">게시물 작성</button>
 				</div>
 				<br>
-				<table  class="table table-bordered">
+				<table  class="table table-dark table-hover">
 					<tr>
 						<th class="table-dark">지역</th>
 						<th class="table-dark">제목</th>
