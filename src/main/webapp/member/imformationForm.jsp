@@ -44,41 +44,50 @@
 	}
 %>
 <!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<title>회원 정보</title>
-	<!-- Latest compiled and minified CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	
-	<!-- Latest compiled JavaScript -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body>
-	<div class="container">
-		<!-- 메인메뉴(가로) -->
-		<div>
-			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
-		</div>
-		<h1>회원 정보</h1>
-		<form action="<%=request.getContextPath() %>/member/updatePasswordForm.jsp" method="post">
-			<table class="table table-bordered">
-				<tr>
-					<th class="table-dark">아이디</th>
-					<td><input type="text" readonly="readonly" value="<%=profile.getMemberId()%>" name="memberId"></td>
-				</tr>
-				<tr>
-					<th class="table-dark">비밀번호</th>
-					<td><input type="password" name="memberPw"></td>
-				</tr>
-				<tr>
-					<th class="table-dark">생성날짜</th>
-					<td><%=profile.getCreatedate().substring(0, 10)%></td>
-				</tr>
-			</table>
-			<button type="submit">비밀번호 수정</button>
-			<button type="submit" formaction="<%=request.getContextPath() %>/member/deleteMemberAction.jsp">회원 탈퇴</button>
-		</form>
-	</div>
-</body>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>회원정보</title>
+        <link href="<%=request.getContextPath() %>/template/css/styles.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="bg-primary">
+    
+        <jsp:include page="/inc/header.jsp"></jsp:include>
+                <main class="login">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-5">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">회원정보</h3></div>
+                                    <div class="card-body">
+                                        <form action="<%=request.getContextPath() %>/member/updatePasswordForm.jsp" method="post">
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" readonly="readonly" name="memberId" type="text" value="<%=profile.getMemberId()%>" />
+                                                <label for="inputEmail">아이디</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" id="inputEmail" type="password" name="memberPw" />
+                                                <label for="inputEmail">비밀번호</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" id="inputEmail" value="<%=profile.getCreatedate().substring(0, 10)%>"  />
+                                                <label for="inputEmail">생성날짜</label>
+                                            </div>
+                                            <button type="submit">비밀번호 수정</button>
+											<button type="submit" formaction="<%=request.getContextPath() %>/member/deleteMemberAction.jsp">회원 탈퇴</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                </main>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="<%=request.getContextPath() %>/template/js/scripts.js"></script>
+    </body>
 </html>

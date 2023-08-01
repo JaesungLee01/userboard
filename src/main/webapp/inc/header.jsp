@@ -128,9 +128,8 @@
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
-            <a class="navbar-brand ps-3" href="home.jsp">user board</a>
+            <a class="navbar-brand ps-3" href="<%=request.getContextPath()%>/home.jsp">user board</a>
             <!-- Sidebar Toggle-->
-            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <!-- Navbar Search-->
             <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
                 <div class="input-group">
@@ -151,7 +150,7 @@
                     <%	
 						} else {
 					%>
-                        <li><%=session.getAttribute("loginMemberId") %>님 환영합니다.</a></li>
+                        <li><%=session.getAttribute("loginMemberId") %>님 환영합니다!</a></li>
                         <li><a class="dropdown-item" href="<%=request.getContextPath()%>/member/logoutAction.jsp">로그아웃</a></li>
                         <li><a class="dropdown-item" href="<%=request.getContextPath()%>/member/imformationForm.jsp">회원정보</a></li>
                     <%		
@@ -163,77 +162,8 @@
         </nav>
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
-                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                    <div class="sb-sidenav-menu">
-                        <div class="nav">
-                            <div class="sb-sidenav-menu-heading">카테고리</div>
-                            <a class="nav-link" href="<%=request.getContextPath()%>/board/categoryList.jsp">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                카테고리 편집
-                            </a>
-                            <div class="sb-sidenav-menu-heading">
-                            <%
-								for(HashMap<String, Object> m : subMenuList) {
-							%>	
-									<p class="justify-content-between">
-										<a href="<%=request.getContextPath()%>/home.jsp?localName=<%=(String)m.get("localName") %>" class="text-decoration-none text-white">
-											<%=(String)m.get("localName") %>
-										</a>
-										<span class="badge rounded-pill bg-secondary"><%=(int)m.get("cnt") %></span>
-									</p>
-							<%		
-								}
-							%>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
             </div>
             <div id="layoutSidenav_content">
-                <main>
-                    <div class="container-fluid px-4">
-                        <h1 class="mt-4">HOME</h1>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-table me-1"></i>
-                                DataTable Example
-                            	<form action="<%=request.getContextPath()%>/board/insertBoardForm.jsp" method="post">
-                                <div class="d-flex flex-row justify-content-end">
-									<button type="submit" class="btn btn-dark">게시물 작성</button>
-                            </div>
-								</div>
-                            <div class="card-body"> 
-                                <table id="datatablesSimple">
-                                    <thead>
-                                        <tr>
-											<th class="table-dark">지역</th>
-											<th class="table-dark">제목</th>
-											<th class="table-dark">날짜</th>
-										</tr>
-                                    </thead>
-                                    <tbody>
-                                    <%
-										for(Board b : list) {
-									%>
-											<tr>
-												<td><%=b.getLocalName() %></td>
-												<td>
-													<a href="<%=request.getContextPath()%>/board/boardOne.jsp?boardNo=<%=b.getBoardNo() %>">
-														<%=b.getBoardTitle() %>
-													</a>
-												</td>
-												<td><%=b.getCreatedate().substring(0, 10) %></td>
-											</tr>
-									<%	
-										}
-									%>
-                                    </tbody>
-                                </table>
-                            </div>
-                           </form>
-                        </div>
-                    </div>
-                </main>
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">

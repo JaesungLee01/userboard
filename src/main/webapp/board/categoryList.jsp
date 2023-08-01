@@ -49,11 +49,11 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+	<div class="p-4 bg-dark text-white text-center">
+	<a class="navbar-brand ps-3" href="<%=request.getContextPath()%>/home.jsp">user board</a>
+	</div>
 	<div class="container">
 		<!-- 메인메뉴(가로) -->
-		<div>
-			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
-		</div>
 		<h1>카테고리 목록</h1>
 		<a href="<%=request.getContextPath()%>/board/insertCategoryForm.jsp">카테고리 추가</a>
 		<table class="table table-bordered">
@@ -78,6 +78,10 @@
 				}
 			%>
 		</table>
+	</div>
+	<div class="mt-5 p-4 bg-dark text-white text-center">
+			<!-- include 페이지 : Copyright &copy; 구디아카데미 -->
+			<jsp:include page="/inc/copyright.jsp"></jsp:include>
 	</div>
 </body>
 </html>

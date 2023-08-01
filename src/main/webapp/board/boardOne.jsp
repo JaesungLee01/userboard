@@ -102,41 +102,13 @@
 </head>
 <body>
 	<div class="p-4 bg-dark text-white text-center">
-	  <h1>유저 게시판</h1>
-	  <p>상세 페이지</p> 
+	<a class="navbar-brand ps-3" href="<%=request.getContextPath()%>/home.jsp">user board</a>
 	</div>
-	<div>
 		<!-- 메인메뉴 -->
-		<div>
-			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
-		</div>
-	</div>
 	<br>
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-9"><h1>상세 내용</h1></div>
-			<div class="col-sm-3">
-				<!-- home 내용 : 로그인 폼/ 게시글 -->
-				<!-- 로그인 폼 -->
-				<%
-					if(session.getAttribute("loginMemberId") != null) {	// 로그인 정보가 없다면 로그인 폼 표시
-				%>
-						<!-- 로그인한 유저 표시 -->
-					<div class="card" style="width:300px">
-					  <div class="card-body">
-					  	<h4 class="card-title">
-						  	<img class="card-img-top" src="<%=request.getContextPath()%>/img/profile.png" alt="Card image" style="width:50px;">
-						    <%=session.getAttribute("loginMemberId") %>
-					    </h4>
-					    <p class="card-text"><%=session.getAttribute("loginMemberId") %>님이 로그인 중입니다.</p>
-					    <a href="<%=request.getContextPath()%>/member/profileForm.jsp" class="btn btn-dark">회원정보</a>
-					    <a href="<%=request.getContextPath()%>/member/logoutAction.jsp" class="btn btn-dark">로그아웃</a>
-					  </div>
-					</div>
-				<%	
-					}
-				%>
-			</div>
 		</div>
 	</div>
 	<br>
@@ -213,9 +185,6 @@
 								} else {
 							%>
 									<div class="row">
-										<div class="col-sm-1">
-											<img src="<%=request.getContextPath()%>/img/profile.png" style="width:40px;">
-										</div>
 										<div class="col-sm">
 											<h5><%=c.getMemberId() %></h5>
 											<p><%=c.getCommentContent() %></p>

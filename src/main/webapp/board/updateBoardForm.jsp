@@ -81,14 +81,7 @@
 </head>
 <body>
 	<div class="p-4 bg-dark text-white text-center">
-		  <h1>My First Bootstrap 5 Page</h1>
-		  <p>Resize this responsive page to see the effect!</p> 
-	</div>
-	<div>
-		<!-- 메인메뉴(가로) -->
-		<div>
-			<jsp:include page="/inc/mainmenu.jsp"></jsp:include>
-		</div>
+	<a class="navbar-brand ps-3" href="<%=request.getContextPath()%>/home.jsp">user board</a>
 	</div>
 	<br>
 	<%=msg%>
@@ -129,9 +122,7 @@
 			<button type="submit">수정</button>
 		</form>
 	</div>
-	<div class="mt-5 p-4 bg-dark text-white text-center">
 		<!-- include 페이지 : Copyright &copy; 구디아카데미 -->
 		<jsp:include page="/inc/copyright.jsp"></jsp:include>
-	</div>
 </body>
 </html>

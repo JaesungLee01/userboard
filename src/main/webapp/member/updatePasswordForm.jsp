@@ -61,36 +61,46 @@
 	}
 %>
 <!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<title>비밀번호 수정</title>
-	<!-- Latest compiled and minified CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	
-	<!-- Latest compiled JavaScript -->
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body>
-	<div class="container">
-		<h1>비밀번호 수정</h1>
-		<form action="<%=request.getContextPath() %>/member/updatePasswordAction.jsp" method="post">
-			<table class="table table-bordered">
-				<tr>
-					<th class="table-dark">비밀번호</th>
-					<td>
-						<input type="hidden" name="memberId" value="<%=profile.getMemberId()%>">
-						<input type="hidden" name="oldMemberPw" value="<%=oldMemberPw %>">
-						<input type="password" name="memberPw">
-					</td>
-				</tr>
-				<tr>
-					<th class="table-dark">비밀번호확인</th>
-					<td><input type="password" name="memberPwCk"></td>
-				</tr>
-			</table>
-			<button type="submit">수정</button>
-		</form>
-	</div>
-</body>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Password Reset - SB Admin</title>
+        <link href="<%=request.getContextPath() %>/template/css/styles.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="bg-primary">
+         <jsp:include page="/inc/header.jsp"></jsp:include>
+                <main>
+                    <div class="login">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-5">
+                                <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                    <div class="card-header"><h3 class="text-center font-weight-light my-4">Password Recovery</h3></div>
+                                    <div class="card-body">
+                                        <div class="small mb-3 text-muted">Enter your email address and we will send you a link to reset your password.</div>
+                                        <form action="<%=request.getContextPath() %>/member/updatePasswordAction.jsp" method="post">
+                                            <div class="form-floating mb-3">
+                                            	<input type="hidden" name="memberId" value="<%=profile.getMemberId()%>">
+												<input type="hidden" name="oldMemberPw" value="<%=oldMemberPw %>">
+                                                <input class="form-control" id="inputEmail" type="password" name="memberPw" />
+                                                <label for="inputEmail">새 비밀번호</label>
+                                            </div>
+                                            <div class="form-floating mb-3">
+                                                <input class="form-control" id="inputEmail" type="password" name="memberPwCk" />
+                                                <label for="inputEmail">비밀번호 확인</label>
+                                            </div>
+                                            <button type="submit">수정</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                </main>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="<%=request.getContextPath() %>/template/js/scripts.js"></script>
+    </body>
 </html>
