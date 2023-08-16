@@ -26,14 +26,14 @@
                                     <div class="card-body">
                                         <form action="<%=request.getContextPath() %>/member/loginAction.jsp" method="post">
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="memberId" name="memberId" type="text" placeholder="아이디" />
+                                                <input class="form-control" value="admin" id="memberId" name="memberId" type="text" placeholder="아이디" />
                                                 <label for="inputEmail">아이디</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="memberPw" name="memberPw" type="password" placeholder="비밀번호" />
+                                                <input class="form-control" value="1234" id="memberPw" name="memberPw" type="password" placeholder="비밀번호" />
                                                 <label for="inputPassword">비밀번호</label>
                                             </div>
-                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            <div class="d-flex align-items-center justify-content-between mt-4b mb-0">
                                                 <button type="submit" class="btn btn-primary">로그인</button>
                                             </div>
                                         </form>
